@@ -1,0 +1,42 @@
+﻿# Secrets - never commit
+.env
+env
+*.env.local
+
+# Internal planning docs - not for the public repo
+docs/aslinumber-implementation-plan.md
+docs/design.md
+docs/frontend-progress.md
+docs/hackathon-strategy.md
+
+# Kiro internal spec/session state - not project source
+.kiro/
+
+# Stray/unrelated files
+tm2b.json
+backend/_scratch_test3.py
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+*.egg-info/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.vite/
+
+# Env/OS/editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Local override
+.env.*
+!.env.example

@@ -1,0 +1,150 @@
+/*
+ * Task 12.2 — design tokens (docs/design.md §3) and self-hosted fonts.
+ *
+ * This file is the single place that:
+ *   1. Declares @font-face rules for Hind, Fraunces, and JetBrains Mono,
+ *      self-hosted from frontend/src/assets/fonts/ rather than loaded
+ *      from a Google Fonts <link> at runtime (docs/design.md §12, and
+ *      the project's broader offline-first principle).
+ *   2. Defines the §3 color tokens as CSS custom properties, which
+ *      frontend/tailwind.config.ts then exposes as Tailwind color
+ *      utilities (bg-paper, text-ink, border-rule, etc).
+ *   3. Loads Tailwind's base/components/utilities layers.
+ *
+ * KNOWN GAP: the actual .woff2 binary files referenced below are not
+ * present in this repository checkout — they cannot be fetched or
+ * generated in this environment. See
+ * frontend/src/assets/fonts/README.md for exactly what to download and
+ * where to place it. Until those files exist, every @font-face below
+ * simply fails to load and the browser falls back to the generic font
+ * stack declared next to each family in tailwind.config.ts
+ * (ui-sans-serif/system-ui, ui-serif/Georgia, ui-monospace) — the app
+ * still renders, just not with the final typeface.
+ */
+
+/* ---------------------------------------------------------------------
+ * 1. Self-hosted @font-face declarations
+ *    Weights per docs/design.md §3.4: Hind 400/500/600/700,
+ *    Fraunces 400/600, JetBrains Mono 400/500.
+ * ------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Hind";
+  src: url("../assets/fonts/Hind/Hind-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hind";
+  src: url("../assets/fonts/Hind/Hind-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hind";
+  src: url("../assets/fonts/Hind/Hind-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hind";
+  src: url("../assets/fonts/Hind/Hind-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/Fraunces/Fraunces-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/Fraunces/Fraunces-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/JetBrainsMono/JetBrainsMono-Regular.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/JetBrainsMono/JetBrainsMono-Medium.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------------------
+ * 2. Tailwind layers
+ * ------------------------------------------------------------------- */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------
+ * 3. Design tokens — docs/design.md §3
+ *    Light mode (§3.1) is the default, applied on :root. Dark mode
+ *    (§3.2) is opt-in via a `.dark` class on <html>, per the
+ *    `darkMode: "class"` strategy configured in tailwind.config.ts —
+ *    light "paper" mode is the product's default identity, not dark
+ *    mode (§2). Status colors (§3.3) are identical in both modes and
+ *    declared once on :root.
+ * ------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    /* §3.1 Color — Light mode (default) */
+    --color-paper: #f3efe4;
+    --color-paper-raised: #fbf9f2;
+    --color-ink: #1c1a16;
+    --color-ink-soft: #5c5646;
+    --color-rule: #d9d2be;
+    --color-accent: #1e3a5f;
+    --color-accent-soft: #e4eaf0;
+    --color-seal: #9c7a2e;
+
+    /* §3.3 Status colors — identical in both modes */
+    --color-verified-official: #2f6b4f;
+    --color-authorized-partner: #3b5b74;
+    --color-unverified: #8a8371;
+    --color-conflicting: #b4791f;
+    --color-high-risk-review: #8c2f2f;
+  }
+
+  /* §3.2 Color — Dark mode (optional, user-toggled) */
+  .dark {
+    --color-paper: #1b1912;
+    --color-paper-raised: #24211a;
+    --color-ink: #ede7d9;
+    --color-ink-soft: #b3ac98;
+    --color-rule: #37331f;
+    --color-accent: #6e93b8;
+    --color-accent-soft: #2a3646;
+    --color-seal: #c7a052;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans;
+  }
+}
