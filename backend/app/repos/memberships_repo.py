@@ -7,9 +7,11 @@ that lists every membership across all users and tenants.
 """
 
 from bson import ObjectId
+from pymongo import ReturnDocument
 from pymongo.database import Database
 
 from app.models.membership import Membership
+from app.models.role import Role
 
 COLLECTION_NAME = "memberships"
 
@@ -64,3 +66,64 @@ class MembershipsRepo:
         """
         cursor = self._collection.find({"userId": ObjectId(user_id)})
         return [Membership(**document) for document in cursor]
+
+    def list_by_tenant(self, tenant_id: ObjectId | str) -> list[Membership]:
+        """List every membership within `tenant_id`.
+
+        Scoped by `tenantId` -- used by `GET /tenant/members`
+        (P2 task 11.4), never an unscoped cross-tenant scan.
+        """
+        cursor = self._collection.find({"tenantId": ObjectId(tenant_id)})
+        return [Membership(**document) for document in cursor]
+
+    def find_by_id(
+        self, tenant_id: ObjectId | str, membership_id: ObjectId | str
+    ) -> Membership | None:
+        """Look up a membership by `_id`, scoped by `tenantId`, or `None`.
+
+        The `tenantId` filter is part of the query itself (not a
+        post-fetch check), so a membership id that belongs to a
+        different tenant can never match -- this is what makes
+        cross-tenant references behave as 404s rather than leaking
+        another tenant's membership.
+        """
+        document = self._collection.find_one(
+            {"_id": ObjectId(membership_id), "tenantId": ObjectId(tenant_id)}
+        )
+        return Membership(**document) if document is not None else None
+
+    def update_role(
+        self, tenant_id: ObjectId | str, membership_id: ObjectId | str, role: Role
+    ) -> Membership | None:
+        """Change a membership's `role`, scoped by `(tenantId, _id)`.
+
+        Returns the updated `Membership`, or `None` if no membership
+        matches that `(tenantId, _id)` pair.
+        """
+        document = self._collection.find_one_and_update(
+            {"_id": ObjectId(membership_id), "tenantId": ObjectId(tenant_id)},
+            {"$set": {"role": role.value}},
+            return_document=ReturnDocument.AFTER,
+        )
+        return Membership(**document) if document is not None else None
+
+    def delete(self, tenant_id: ObjectId | str, membership_id: ObjectId | str) -> bool:
+        """Remove a membership, scoped by `(tenantId, _id)`.
+
+        Returns whether a document was actually deleted.
+        """
+        result = self._collection.delete_one(
+            {"_id": ObjectId(membership_id), "tenantId": ObjectId(tenant_id)}
+        )
+        return result.deleted_count > 0
+
+    def count_by_tenant_and_role(self, tenant_id: ObjectId | str, role: Role) -> int:
+        """Count memberships in `tenant_id` currently holding `role`.
+
+        Used by `app.services.tenant_service.assert_retains_an_owner`
+        (the Last_Owner_Rule) to confirm a change would not leave the
+        tenant with zero owners.
+        """
+        return self._collection.count_documents(
+            {"tenantId": ObjectId(tenant_id), "role": role.value}
+        )

@@ -77,12 +77,7 @@ export default {
       fontFamily: {
         sans: ["Hind", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["Fraunces", "ui-serif", "Georgia", "serif"],
-        mono: [
-          '"JetBrains Mono"',
-          "ui-monospace",
-          "SFMono-Regular",
-          "monospace",
-        ],
+        mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
       },
 
       // §3.4 scale (px): 12 micro/labels, 13 table body, 14 body,

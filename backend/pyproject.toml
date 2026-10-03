@@ -12,6 +12,7 @@ dependencies = [
     "pwdlib[argon2]==0.3.1",
     "pyjwt==2.15.1",
     "typer==0.27.2",
+    "tldextract==5.3.2",
 ]
 
 [project.optional-dependencies]
@@ -63,6 +64,20 @@ known-first-party = ["app"]
 # existing collection schema rather than Python's snake_case convention.
 [tool.ruff.lint.per-file-ignores]
 "app/models/*.py" = ["N815"]
+# FastAPI's dependency-injection idiom is `param: T = Depends(fn)`, which
+# Ruff's flake8-bugbear B008 rule otherwise flags as "function call in a
+# default argument" -- a real anti-pattern in general, but the documented,
+# intentional pattern for this specific framework.
+"app/auth/deps.py" = ["B008"]
+"app/api/routers/auth.py" = ["B008", "N815"]
+# Same FastAPI DI idiom as auth.py, above. N815 is also needed here: P2's
+# request bodies mirror the camelCase Mongo field names (displayName,
+# officialDomains, contactTypes, etc.), the same convention app/models/
+# is already exempted for.
+"app/api/routers/brands.py" = ["B008", "N815"]
+"app/api/routers/official_contacts.py" = ["B008", "N815"]
+"app/api/routers/tenant.py" = ["B008", "N815"]
+"app/api/routers/audit.py" = ["B008", "N815"]
 
 # Path is relative to this file's directory (backend/), so this resolves to
 # backend/tests, discovering tests under backend/tests/{unit,integration}.

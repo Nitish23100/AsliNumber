@@ -80,9 +80,7 @@ def test_issued_tokens_have_unique_jti_across_calls(
     and confirms every decoded jti across the batch is distinct.
     """
     jtis = [
-        decode_access_token(
-            issue_access_token(user_id=user_id, tenant_id=tenant_id, role=role)
-        ).jti
+        decode_access_token(issue_access_token(user_id=user_id, tenant_id=tenant_id, role=role)).jti
         for user_id, tenant_id, role in triples
     ]
 

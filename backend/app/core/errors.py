@@ -5,12 +5,15 @@ is shaped exactly as ``{"error": {"code": ..., "message": ..., "details":
 ...}}``, as opposed to the ``{"data": ..., "meta": {...}}`` shape used by
 success responses (plan §9.7).
 
-This phase (P1) only reaches five error codes from the auth skeleton:
-``VALIDATION_ERROR``, ``UNAUTHENTICATED``, ``FORBIDDEN``, ``RATE_LIMITED``,
-and ``INTERNAL`` -- see the design's Error Handling table. ``AppError`` is
-the single parameterized exception a later FastAPI exception handler (task
-2.6 or a later auth-routes task) catches and converts into the envelope
-with the matching HTTP status code.
+P1's auth skeleton reaches five error codes: ``VALIDATION_ERROR``,
+``UNAUTHENTICATED``, ``FORBIDDEN``, ``RATE_LIMITED``, and ``INTERNAL``.
+P2 adds two more per its own Error Handling section: ``CONFLICT`` (409 --
+duplicate brand slug within a tenant; the Last_Owner_Rule) and
+``NOT_FOUND`` (404 -- a brand/official-contact/membership id absent from
+the requester's TenantContext, including ids that exist only in a
+different tenant). ``AppError`` is the single parameterized exception a
+FastAPI exception handler catches and converts into the envelope with the
+matching HTTP status code.
 
 Nothing here implements the error-handling *behaviors* described
 narratively in the design (refresh-reuse/expired/unknown-token response
@@ -57,6 +60,8 @@ class ErrorCode(StrEnum):
     FORBIDDEN = "FORBIDDEN"
     RATE_LIMITED = "RATE_LIMITED"
     INTERNAL = "INTERNAL"
+    CONFLICT = "CONFLICT"
+    NOT_FOUND = "NOT_FOUND"
 
 
 _DEFAULT_STATUS_CODES: dict[ErrorCode, int] = {
@@ -65,6 +70,8 @@ _DEFAULT_STATUS_CODES: dict[ErrorCode, int] = {
     ErrorCode.FORBIDDEN: 403,
     ErrorCode.RATE_LIMITED: 429,
     ErrorCode.INTERNAL: 500,
+    ErrorCode.CONFLICT: 409,
+    ErrorCode.NOT_FOUND: 404,
 }
 
 

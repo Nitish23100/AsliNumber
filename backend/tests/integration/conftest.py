@@ -33,7 +33,7 @@ def db() -> Database:
     the same `create_indexes` entry point the real app factory calls on
     startup.
     """
-    client = mongomock.MongoClient()
+    client = mongomock.MongoClient(tz_aware=True)
     database = client["aslinumber_test"]
     create_indexes(database)
     return database

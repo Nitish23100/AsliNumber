@@ -49,6 +49,7 @@ def get_mongo_client(
     return MongoClient(
         settings.MONGO_URI,
         serverSelectionTimeoutMS=server_selection_timeout_ms,
+        tz_aware=True,
     )
 
 

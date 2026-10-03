@@ -49,7 +49,7 @@ class _ObjectIdPydanticAnnotation:
                     from_str_schema,
                 ]
             ),
-            serialization=core_schema.plain_serializer_function_ser_schema(str),
+            serialization=core_schema.plain_serializer_function_ser_schema(str, when_used="json"),
         )
 
 

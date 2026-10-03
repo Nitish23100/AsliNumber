@@ -1,11 +1,12 @@
 """Tenant-scoped MongoDB repositories for users, tenants, memberships, and sessions.
 
 Each submodule (`tenants_repo`, `users_repo`, `memberships_repo`,
-`sessions_repo`) owns its own `create_indexes(db)` function next to the
+`sessions_repo`, and -- as of P2 -- `brands_repo`, `official_contacts_repo`,
+`audit_log_repo`) owns its own `create_indexes(db)` function next to the
 repository class it belongs to, so the index spec lives beside the model
 it indexes. `create_indexes` here is the single consolidated entry point
-that calls all four -- the app factory (task 2.6) or any startup/seed path
-calls this one function rather than importing every submodule itself.
+that calls all of them -- the app factory (task 2.6) or any startup/seed
+path calls this one function rather than importing every submodule itself.
 
 `create_index` is idempotent for an identical spec (MongoDB only creates
 the index once; repeat calls are no-ops), so calling this on every app
@@ -14,7 +15,15 @@ startup is safe and never raises or duplicates an index.
 
 from pymongo.database import Database
 
-from app.repos import memberships_repo, sessions_repo, tenants_repo, users_repo
+from app.repos import (
+    audit_log_repo,
+    brands_repo,
+    memberships_repo,
+    official_contacts_repo,
+    sessions_repo,
+    tenants_repo,
+    users_repo,
+)
 
 
 def create_indexes(db: Database) -> None:
@@ -22,9 +31,15 @@ def create_indexes(db: Database) -> None:
 
     Covers: unique `tenants.slug`, unique `users.email`, unique compound
     `memberships.(userId, tenantId)`, unique `sessions.refreshTokenHash`,
-    and the TTL index on `sessions.expiresAt`.
+    the TTL index on `sessions.expiresAt`, and (as of P2) unique compound
+    `brands.(tenantId, slug)`, unique compound
+    `official_contacts.(tenantId, brandId, e164)`, and the `audit_log`
+    lookup indexes.
     """
     tenants_repo.create_indexes(db)
     users_repo.create_indexes(db)
     memberships_repo.create_indexes(db)
     sessions_repo.create_indexes(db)
+    brands_repo.create_indexes(db)
+    official_contacts_repo.create_indexes(db)
+    audit_log_repo.create_indexes(db)

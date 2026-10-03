@@ -33,9 +33,7 @@ _REGISTERED_PATHS = ("/ok", "/boom", "/forbidden")
 # component that Starlette's router can attempt (and fail) to match.
 _PATH_SEGMENT_ALPHABET = string.ascii_letters + string.digits + "-_"
 
-_unregistered_path_segment = st.text(
-    alphabet=_PATH_SEGMENT_ALPHABET, min_size=1, max_size=40
-)
+_unregistered_path_segment = st.text(alphabet=_PATH_SEGMENT_ALPHABET, min_size=1, max_size=40)
 
 # A mix of the three registered paths (covering 200/500/403) and many
 # arbitrary, never-registered paths (covering 404 across arbitrary unmatched
