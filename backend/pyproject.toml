@@ -27,6 +27,17 @@ dev = [
     # repo tests (task 4.2) in place of a real MongoDB instance, which is
     # not assumed to be reachable in every dev/CI environment.
     "mongomock==4.3.0",
+    # starlette.testclient (used by every integration test importing
+    # fastapi.testclient.TestClient) requires httpx2 to be installed as
+    # of the starlette version fastapi==0.142.2 resolves to; it is not a
+    # transitive dependency of fastapi's base install (only of its
+    # unused "standard" extra), so it must be declared explicitly here.
+    # Without this, a clean install (e.g. CI) raises RuntimeError at
+    # test-collection time -- it only appeared to work on some local
+    # machines where an unrelated package happened to pull in the
+    # legacy httpx package, which starlette.testclient still accepts
+    # with a deprecation warning.
+    "httpx2==2.13.1",
 ]
 
 [build-system]
